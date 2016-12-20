@@ -10,6 +10,6 @@ https://www.douban.com/note/tags/阿男的Linux内核世界?people=weinanli
 
 ## 目录
 
-[『阿男的Linux内核世界』＊05 僵尸进程＊]()
+[『阿男的Linux内核世界』＊05 僵尸进程＊](https://github.com/liweinan/kernel-learning/blob/master/chapters/05ZombieProcess.md)
 
 
