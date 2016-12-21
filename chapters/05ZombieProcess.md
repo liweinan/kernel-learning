@@ -52,3 +52,31 @@ void err_sys(const char* fmt, ...) {
 }
 
 ```
+
+可以看到，我们这次所使用的代码其实和之前使用的差不多，而最大的区别就是，这次的代码是child process先退出，然后parent process要sleep 60秒才退出。
+
+因此我们可以看看再这样的情况下，和child process先退出会有什么不同。首先我们编译这段代码：
+
+```bash
+[weli@fedora process]$ cc zombie.c -o zombie
+```
+
+然后我们运行编译后的代码：
+
+```bash
+[weli@fedora process]$ ./zombie 
+parent process goes to sleep...
+```
+
+此时我们使用_ps_命令查看这个程序的两个process的运行状况：
+
+```
+[weli@fedora process]$ ps -ef | grep zombie
+weli      9203  5502  0 19:53 pts/0    00:00:00 ./zombie
+weli      9204  9203  0 19:53 pts/0    00:00:00 [zombie] <defunct>
+```
+
+
+
+
+
