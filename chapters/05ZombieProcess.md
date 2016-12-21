@@ -106,7 +106,8 @@ zombie  9203 weli    2u   CHR  136,0      0t0      3 /dev/pts/0
 
 从上面的输出可以看到，正在运行的parent process至少在使用着自己所对应的程序文件_/home/weli/projs/kernel-learning/process/zombie_，而实际上已经退出的child prorcess就是一个空壳，实实在在就是一个zombie！
 
+那么为什么child process执行完成后，内核还要保留这样一个zombie process呢？
 
-
+这个问题作为本篇文章的读后思考问题，阿男下篇文章为大家进行讲解。
 
 
