@@ -82,7 +82,7 @@ weli     22417 18153  0 21:00 pts/2    00:00:00 ./process
 weli     22418 22417  0 21:00 pts/2    00:00:00 ./process
 ```
 
-如上所示，我们可以用ps看到parent和child两个process。并且从日志和ps的输出可以看出来，22418 process，它的parent是id为22417的process。
+如上所示，我们可以用ps看到parent和child两个process。并且从日志和ps的输出可以看出来，编号为22418的是child process，它的parent是id为22417的process。
 
 因为我们写的代码是让parent process先退出，然后child要多等10秒再推出，因此我们可以看看parent process退出后，child process的状态是什么样子的：
 
@@ -95,7 +95,7 @@ weli     22418     1  0 21:00 pts/2    00:00:00 ./process
 
 而且我们看此时这个在运行的child process，它的ppid变成了1。
 
-也就是说因为，parent process已经退出不存在了，所以1号进程称为了child process的parent，这是内核对process继承关系的管理办法。
+也就是说，因为parent process已经退出不存在了，所以1号进程称为了child process的parent，这是内核对process继承关系的管理办法。
 
 最后我们看一下，等到两个进程都执行完后的状态：
 
