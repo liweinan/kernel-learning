@@ -104,7 +104,7 @@ zombie  9203 weli    1u   CHR  136,0      0t0      3 /dev/pts/0
 zombie  9203 weli    2u   CHR  136,0      0t0      3 /dev/pts/0
 ```
 
-从上面的输出可以看到，正在运行的parent process至少在使用着自己所对应的程序文件_/home/weli/projs/kernel-learning/process/zombie_，而实际上已经退出的child prorcess就是一个空壳，实实在在就是一个_zombie_！
+从上面的输出可以看到，正在运行的parent process至少在使用着自己所对应的程序文件_/home/weli/projs/kernel-learning/process/zombie_，而实际上已经退出的child prorcess就是一个空壳，实实在在就是一个*zombie*！
 
 
 
