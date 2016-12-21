@@ -1,6 +1,4 @@
-# Linux Kernel Learning
-
-## 『阿男的Linux内核世界』
+#『阿男的Linux内核世界』
 
 这个系列之前的文章在这里：
 
