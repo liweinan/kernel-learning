@@ -2,10 +2,10 @@
 title: "阿男的Linux内核世界"
 author: 阿男
 date: Dec 22, 2016
-mainfont: "AR PL New Sung"
-CJKmainfont: "AR PL New Sung"
+mainfont: "FZBaoSong-Z04S"
+CJKmainfont: "FZBaoSong-Z04S"
 CJKoptions:
-  - BoldFont=WenQuanYi Zen Hei
+  - BoldFont=FZMeiHei-M07S
   - ItalicFont=STFangsong
   - Scale=1.0
 ---
