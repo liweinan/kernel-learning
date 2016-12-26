@@ -10,7 +10,219 @@ CJKoptions:
   - Scale=1.0
 ---
 
+# 开篇
+
+按照和大家的约定，阿男要开始给大家开这个Linux内核专栏了。开这个专栏是非常开心的事情，因为操作系统也是阿男两个最喜欢的领域之一（另一个是编译原理）。
+
+这个专栏的方向无比清晰：让大家知道操作系统是怎么工作的。
+
+阿男觉得学习操作系统和编译原理是最超值的，因为这种学习会彻底改变你在从事编程这件事的时候，你眼前的世界的样子。
+
+首先，很多表面上复杂的东西，其实理解了背后的工作原理，就会发现其实非常简单，正则表达式就是最好的例子（参见阿男之前写的专栏：『阿男导读』＊正则表达式背后的有限状态自动机＊）。
+
+然后你能知道问题的边界在哪里，把手头的问题放入一个更为层次丰富，更为透明的世界里，你会看得更清楚。所以把层次了解的丰富一些，更方便自己对手头的问题作出判断。
+
+最后，深入的学习当然还有个好处就是，你手头的工具变得丰富了。当你解决一个问题的时候，你可以更为合理地选择更多层面的工具。
+
+阿男感受过这种体验，很棒。相信大家也会体验到。那么我们接下来就一起学习操作系统吧！这个专栏可能会延续很久，没关系，我们有的是时间学习。
+
 # 进程
+
+进程（process）可能是Linux世界下最有生命力的存在了。所谓process就是活的程序，正在运行中的代码。
+
+计算机必须要有软件，人类才可能使用它。软件和硬件工程师们合作创造了BIOS（Basic Input/Output System），BIOS本身是软件，是程序，但是是固化在芯片里的代码（现代的BIOS也可以编程，刷新，升级），随着计算机启动最先加载这些代码。
+
+BIOS负责将计算机里面的各个硬件加载，运转起来。
+
+科学家们给这一过程非常形象地起了一个名字：Bootstrap。
+
+什么是Bootstrap？这个词初见于童话故事 《吹牛大王历险记》：在书中，敏豪森男爵吹牛说，自己骑着马掉进了沼泽，但他天生神力，两腿夹着马，双手抓着自己的小辫子，把自已和马一起从沼泽里拉到了半空！[^1]
+
+[^1]: The Adventures of Baron Munchausen，《吹牛大王历险记》是18世纪德国著名的儿童文学作品。
+
+
+计算机的启动过程就比较类似于这样，但是为什么后来这个启动过程叫做Bootstrap（自己的鞋跟），而不是拉着自己的小辫子，这就说不清了。历史上一个说法是，这个德国民间故事后来传到美国，就被再加工，变成了拉鞋跟了。
+
+当BIOS完成Bootstrap后，会把控制权交接给操作系统。此时Linux操作系统的话，会接收控制权，然后执行Bootloader，比如GRUB或者LILO，让你选择要运行的Linux系统[^2]。
+
+[^2]: GRUB和LILO是两个比较常用的Boot Loader，用在同时安装了多个操作系统的机器上，供用户选择要启动哪个操作系统）
+
+对于没有安装Boot Loader的Linux系统，则跳过选择这一步，直接开始Linux系统的加载过程。
+
+Linux系统加载的过程是这样的：首先，一个编号为0的process产生了，它是所有后续process的parent。这个编号为0的process会产生一个编号为1的process，然后自我毁灭（准确来讲，是变成swapper）。这个id为1的process就是init，它是所有后续process的parent。Linux下面的process，是parent与child这样的层级关系。
+
+一个parent process可以克隆自己，拥有有多个children，而每个child只有一个parent。每个process的编号叫做process id，简称PID。每个process的parent process的编号叫做parent process id，缩写是PPID。
+
+我们在比较新的Linux操作系统里面，使用ps命令查看pid为1的process时，可能会和上面说的的不太一样。比如阿男的Fedora 24系统：
+
+```c
+$ ps -fp 1
+UID        PID  PPID  C STIME TTY          TIME CMD
+root         1     0  0 Dec25 ?        00:00:03 /usr/lib/systemd/systemd --switched-root --system --deserialize 23
+```
+
+pid为1的process是systemd，不是init，这是因为systemd现在会接管系统。关于systemd，这篇文章不想展开，如果大家有兴趣，阿男以后可以看专栏。
+
+总之我们知道了，有一个pid是1的process，它是所有后续process的parent，而它的parent的id是0，启动后就自毁了。
+
+对于很多初学者来讲，这个parent process克隆自己产生children processes的过程是很开脑洞的：首先parent process会复制自己，创建一个或多个新的children processes，这些children processes里面的所有内容都和parent process一摸一样。
+
+像什么？有点类似于"单细胞分裂"。
+
+生成的child里面对应的数据，代码，都是和parent一样的，也就是说在内存里面他们都是一样的。
+
+这个过程叫做fork，在Linux世界里就是fork()函数做这件事，具体的细节阿男会在下篇文章中给大家讲。
+
+那么问题来了，如果parent生成的children和自己一样，那岂不是所有的process都执行相同的program了？
+
+但实际上我们的系统是在执行很多不同的program啊？
+
+这个问题，大家可以先带在身上，阿男后续给大家讲。
+
+感觉这篇文章讲的东西够大家消化一下了，下篇阿男继续带大家学习process。
+
+## 什么是进程
+
+我们在上篇文章里，学习了计算机的启动过程，以及Linux是如何接管系统并且创建各个process的过程。
+
+我们知道了process就是"活的"程序，这些processes就是实际在运行的代码。
+
+然后我们学习了process是如何产生的：从一个初始的process，复制自身，产生了新的processes。这个process把自己复制的过程叫做fork，我们这篇文章里就具体看一下fork()函数的使用方法。
+
+首先是fork()的定义：
+
+```man
+FORK(2)                                                         Linux Programmer's Manual                                                         FORK(2)
+
+NAME
+       fork - create a child process
+
+SYNOPSIS
+       #include <unistd.h>
+
+       pid_t fork(void);
+
+DESCRIPTION
+       fork()  creates  a  new  process by duplicating the calling process.  The new process is referred to as the child process.  The calling process is
+       referred to as the parent process.
+```
+
+文档写的很清楚，fork()函数的作用，就是把调用这个fork()函数的process自身，复制一份，成为自己的child process，自己就是创建的这个child process的parent process。
+
+这个函数比较有意思的一点是，它会分别针对parent process和child process进行返回。如果child创建成功的话，则：
+
+- fork()会对parent process返回child process的id
+- fork()会对child process返回0
+
+这样，我们在process中就可以通过判断fork的返回，来确定自己是child还是parent了。
+
+接下来写段代码来实际使用一下fork()函数：
+
+```c
+/* exit() */
+#include <stdlib.h>
+
+#include <sys/types.h>
+
+/*
+ * fork()
+ */
+#include <unistd.h>
+
+/* 
+ * stderr
+ * stdout
+ * fprintf
+ */
+#include <stdio.h>
+
+void err_sys(const char* fmt, ...);
+
+int main () {
+	pid_t pid;
+	if ((pid = fork()) < 0) { /* 创建child process */
+		err_sys("fork error");
+	} else if (pid == 0) { /* 这里是child process */
+		puts("child process here."); 
+		puts("child process will sleep for 10 seconds...");
+		sleep(10);
+	} else { /* 这里是parent process */
+		puts("parent process here.");
+		printf("parent get the child pid: %d\n", pid);
+	}
+	
+	/* 父亲孩子共用的代码部分 */
+	sleep(3);
+	
+	if (pid == 0) { /* child process */
+		puts("child process exit.");
+	} else { /* parent process */
+		puts("parent process exit.");
+	}
+	
+	return 0;
+}
+
+void err_sys(const char* fmt, ...) {
+	va_list ap;
+	fprintf(stderr, fmt, ap);
+	exit(1);
+}
+```
+
+这段代码的核心是这里：
+
+```c
+pid = fork()
+```
+
+从上面这行代码开始，这个process就会创建出一个child process来，和自己一模一样，并且会接着往下执行，因此后续的代码都要考虑自己是parent process还是child process了：
+
+```c
+if (pid == 0)
+```
+
+如果pid为0，那么自己就是child process；如果不为0，就是parent process。
+
+所以说此时我们这段代码已经分别在parent和child process里面运行着，我们的大脑也要"分裂一下"。接下来继续看代码，这个程序针对child process和parent process有不同的代码：
+
+```c
+	} else if (pid == 0) { /* 这里是child process */
+		puts("child process here."); 
+		puts("child process will sleep for 10 seconds...");
+		sleep(10);
+	} else { /* 这里是parent process */
+		puts("parent process here.");
+		printf("parent get the child pid: %d\n", pid);
+	}
+```
+
+如上代码所示，如果是child，则sleep 10秒钟。如果是parent，则打印出child process的id（从fork返回得来）。接下来是parent和child都会执行的代码：
+
+```c
+sleep(3);
+```
+
+sleep 3 秒，这样我们可以保证parent process和child process的执行顺序了：parent和child都要睡眠3秒，但是child process还要多睡10秒钟，所以肯定是parent先退出，child后退出。
+
+我们在下篇文章中要用到这个执行顺序来讲解，所以要通过sleep来控制一下，到时候再详细说。接下来我们编译上面的代码：
+
+```c
+cc process.c -o process
+```
+
+然后运行代码：
+
+```c
+$ ./a.out
+parent process here.
+parent get the child pid: 85797
+child process here.
+child process will sleep for 10 seconds...
+parent process exit.
+```
+
+从上面的输出，我们看到程序的整个执行过程。
 
 ## Parent Process与Child Process
 
