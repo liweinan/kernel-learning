@@ -1,7 +1,6 @@
 ---
 title: "阿男的Linux内核世界"
 author: 阿男
-date: Dec 22, 2016
 mainfont: "FZBaoSong-Z04S"
 CJKmainfont: "FZBaoSong-Z04S"
 CJKoptions:
