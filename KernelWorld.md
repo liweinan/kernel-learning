@@ -217,4 +217,44 @@ zombie  9203 weli    2u   CHR  136,0      0t0      3 /dev/pts/0
 
 从上面的输出可以看到，正在运行的parent process至少在使用着自己所对应的程序文件`/home/weli/projs/kernel-learning/process/zombie`，而实际上已经退出的child prorcess就是一个空壳，实实在在就是一个zombie！那么为什么child process执行完成后，内核还要保留这样一个zombie process呢？这个问题作为本篇文章的读后思考问题，阿男下篇文章为大家进行讲解。
 
+## 为什么要有zombie process？
 
+阿男在上篇文章里给大家留了一个问题：child process退出后，此时parent process还没退出，为什么child process此时要保留一个zombie process？
+
+答案是：这是为了进程间同步而考虑。
+
+Linux提供了一个函数叫做`waitpid`：
+
+```man
+WAIT(2)                                                         Linux Programmer's Manual                                                         WAIT(2)
+
+NAME
+       wait, waitpid, waitid - wait for process to change state
+
+SYNOPSIS
+       #include <sys/types.h>
+       #include <sys/wait.h>
+
+       pid_t wait(int *status);
+       pid_t waitpid(pid_t pid, int *status, int options);
+```
+
+这个函数可以让caller等待某一个进程（通过pid来识别）的状态改变，在没有检查到状态转变之前，caller会一直hold在那里不往下执行。
+
+我们可以思考一下，因为程序退出也是一种"状态的改变"，因此保留一个zombie process，这样如果有一个waitpid的caller process就可以捕获这个状态改变了。
+
+对于退出的child process来讲，如果parent process想调用waipid来等待child process的退出，那么我们可以想一下，waitpid在设计实现上肯定需要child process在退出后保留一个zombie，而不是直接完全退出，这样waitpid才能检测这种退出状态的发生。最后，waitpid是会负责回收zombie process的。
+
+那么我们在之前，parent process先退出，child process后退出的情况下，为什么没有看到过zombie process？
+
+其实很简单，因为parent process的parent是bash shell，parent process退出后，bash shell就处理掉相关的zombie process了。
+
+另一方面，child process因为在parent process退出后仍然在运行，我们之前学习了，这种情况下，id为1的process会成为child process的parent。因此，child process退出后，id为1的process就也把child process的zombie释放了。所以这种情况下并不是没有zombie process，而是zombie被回收的过程是瞬间，所以我们在`ps`里面看不到。
+
+只有当我们的parent process没退出，child process已经退出的情况下，才会在`ps`的输出里看到child process的zombie。因为内核预定由parent process负责回收child process的zombie，这样parent process的waitpid才能捕获child process的退出状态。
+
+但如果我们的parent process一直不退出，也不回收zombie，就会在`ps`的输出里面看到child process的zombie。
+
+这也是为什么服务器性质的代码往往会制造一堆zombie。比如http服务器，加入服务程序长时间运行，生成了好多children process，等children运行完成后又不回收，就会看到进程列表里面好多zombie。这种情况下只能kill掉主进程，这样所有的children的parent就变成了id为1的process，而id为1的process会把所有的zombie都释放掉。
+
+在下一篇文章里，阿男给大家讲解waitpid的具体使用方法。

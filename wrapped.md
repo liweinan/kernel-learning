@@ -2,10 +2,10 @@
 title: "阿男的Linux内核世界"
 author: 阿男
 date: Dec 22, 2016
-mainfont: "AR PL New Sung"
-CJKmainfont: "AR PL New Sung"
+mainfont: "FZBaoSong-Z04S"
+CJKmainfont: "FZBaoSong-Z04S"
 CJKoptions:
-  - BoldFont=WenQuanYi Zen Hei
+  - BoldFont=FZMeiHei-M07S
   - ItalicFont=STFangsong
   - Scale=1.0
 ---
@@ -255,4 +255,28 @@ prorcess就是一个空壳，实实在在就是一个zombie！那么为什么chi
 process执行完成后，内核还要保留这样一个zombie 
 process呢？这个问题作为本篇文章的读后思考问题，阿男下篇文章为大家进行讲解。
 
+## 为什么要有zombie process？
+
+阿男在上篇文章里给大家留了一个问题：child process退出后，此时parent 
+process还没退出，为什么child process此时要保留一个zombie process？
+
+答案是：这是为了进程间同步而考虑。
+
+Linux提供了一个函数叫做`waitpid`：
+
+```man
+WAIT(2)                                                         Linux 
+Programmer's Manual                                                         
+WAIT(2)
+
+NAME
+       wait, waitpid, waitid - wait for process to change state
+
+SYNOPSIS
+       #include <sys/types.h>
+       #include <sys/wait.h>
+
+       pid_t wait(int *status);
+
+```
 
