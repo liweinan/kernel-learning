@@ -1,4 +1,4 @@
 #『阿男的Linux内核世界』
 
-阿男在这个专栏里，将为大家介绍Linux Kernel的方方面面。
+豆瓣连载中：https://www.douban.com/note/tags/阿男的Linux内核世界?people=weinanli
 
