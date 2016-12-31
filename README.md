@@ -1,4 +1,5 @@
 #『阿男的Linux内核世界』
 
-豆瓣连载中：https://www.douban.com/note/tags/阿男的Linux内核世界?people=weinanli
+[『阿男的Linux内核世界』＊08 wait的使用方法＊](https://github.com/liweinan/kernel-learning/blob/master/08.md)
+[『阿男的Linux内核世界』＊09 wait的使用方法＊](https://github.com/liweinan/kernel-learning/blob/master/09.md)
 
