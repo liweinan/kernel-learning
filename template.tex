@@ -47,12 +47,11 @@ $if(mathfont)$
 $endif$
 $if(CJKmainfont)$
     \usepackage{xeCJK}
-%    \setCJKmainfont[$for(CJKoptions)$$CJKoptions$$sep$,$endfor$]{$CJKmainfont$}
+    \setCJKmainfont[$for(CJKoptions)$$CJKoptions$$sep$,$endfor$]{$CJKmainfont$}
     \setlength{\parindent}{0pt} % 設定縮排
 	\linespread{1.3} % 設定行距
 	\setlength{\parskip}{16pt} % 設定段落間距
-	\setmainfont[]{FZBaoSong-Z04S}
-    \setCJKmainfont[BoldFont=FZMeiHei-M07S,ItalicFont=STFangsong,Scale=1.0]{FZBaoSong-Z04S}
+	\pagenumbering{gobble}
 $endif$
 \fi
 % use upquote if available, for straight quotes in verbatim environments
